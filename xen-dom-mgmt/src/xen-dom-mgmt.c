@@ -776,6 +776,585 @@ static int initialize_xenstore(uint32_t domid,
 		goto deinit;
 	}
 
+
+#if 1
+	if (domid > 1) {
+
+
+		// VBD BACKEND domain part
+		int backendid = 1;
+
+		sprintf(lbuffer, "%s/%d/backend", basepref, backendid);
+		rc = xss_write_guest_domain_ro2(lbuffer, "", backendid, domid);
+		if (rc) {
+			goto deinit;
+		}
+
+		sprintf(lbuffer, "%s/%d/backend/vbd", basepref, backendid);
+		rc = xss_write_guest_domain_ro2(lbuffer, "", backendid, domid);
+		if (rc) {
+			goto deinit;
+		}
+
+		sprintf(lbuffer, "%s/%d/backend/vbd/%d", basepref, backendid, domid);
+		rc = xss_write_guest_domain_ro2(lbuffer, "", backendid, domid);
+		if (rc) {
+			goto deinit;
+		}
+
+		sprintf(lbuffer, "%s/%d/backend/vbd/%d/51712", basepref, backendid, domid);
+		rc = xss_write_guest_domain_ro2(lbuffer, "", backendid, domid);
+		if (rc) {
+			goto deinit;
+		}
+
+		sprintf(lbuffer, "%s/%d/backend/vbd/%d/51712/frontend", basepref, backendid, domid);
+		sprintf(rbuffer, "/local/domain/%d/device/vbd/51712", domid);
+		rc = xss_write_guest_domain_ro2(lbuffer, rbuffer, backendid, domid);
+		if (rc) {
+			goto deinit;
+		}
+
+		sprintf(lbuffer, "%s/%d/backend/vbd/%d/51712/params", basepref, backendid, domid);
+		rc = xss_write_guest_domain_ro2(lbuffer, "/bin/bash", backendid, domid);
+		if (rc) {
+			goto deinit;
+		}
+
+		sprintf(lbuffer, "%s/%d/backend/vbd/%d/51712/script", basepref, backendid, domid);
+		rc = xss_write_guest_domain_ro2(lbuffer, "/etc/xen/scripts/block", backendid, domid);
+		if (rc) {
+			goto deinit;
+		}
+
+		sprintf(lbuffer, "%s/%d/backend/vbd/%d/51712/frontend-id", basepref, backendid, domid);
+		sprintf(rbuffer, "%d", domid);
+		rc = xss_write_guest_domain_ro2(lbuffer, rbuffer, backendid, domid);
+		if (rc) {
+			goto deinit;
+		}
+
+		sprintf(lbuffer, "%s/%d/backend/vbd/%d/51712/online", basepref, backendid, domid);
+		rc = xss_write_guest_domain_ro2(lbuffer, "1", backendid, domid);
+		if (rc) {
+			goto deinit;
+		}
+
+		sprintf(lbuffer, "%s/%d/backend/vbd/%d/51712/removable", basepref, backendid, domid);
+		rc = xss_write_guest_domain_ro2(lbuffer, "0", backendid, domid);
+		if (rc) {
+			goto deinit;
+		}
+
+		sprintf(lbuffer, "%s/%d/backend/vbd/%d/51712/bootable", basepref, backendid, domid);
+		rc = xss_write_guest_domain_ro2(lbuffer, "1", backendid, domid);
+		if (rc) {
+			goto deinit;
+		}
+
+		sprintf(lbuffer, "%s/%d/backend/vbd/%d/51712/state", basepref, backendid, domid);
+		rc = xss_write_guest_domain_ro2(lbuffer, "1", backendid, domid);
+		if (rc) {
+			goto deinit;
+		}
+
+		sprintf(lbuffer, "%s/%d/backend/vbd/%d/51712/dev", basepref, backendid, domid);
+		rc = xss_write_guest_domain_ro2(lbuffer, "xvda", backendid, domid);
+		if (rc) {
+			goto deinit;
+		}
+
+		sprintf(lbuffer, "%s/%d/backend/vbd/%d/51712/type", basepref, backendid, domid);
+		rc = xss_write_guest_domain_ro2(lbuffer, "phy", backendid, domid);
+		if (rc) {
+			goto deinit;
+		}
+
+		sprintf(lbuffer, "%s/%d/backend/vbd/%d/51712/mode", basepref, backendid, domid);
+		rc = xss_write_guest_domain_ro2(lbuffer, "w", backendid, domid);
+		if (rc) {
+			goto deinit;
+		}
+
+		sprintf(lbuffer, "%s/%d/backend/vbd/%d/51712/device-type", basepref, backendid, domid);
+		rc = xss_write_guest_domain_ro2(lbuffer, "disk", backendid, domid);
+		if (rc) {
+			goto deinit;
+		}
+
+		sprintf(lbuffer, "%s/%d/backend/vbd/%d/51712/discard-enable", basepref, backendid, domid);
+		rc = xss_write_guest_domain_ro2(lbuffer, "1", backendid, domid);
+		if (rc) {
+			goto deinit;
+		}
+
+		sprintf(lbuffer, "%s/%d/backend/vbd/%d/51712/multi-queue-max-queues", basepref, backendid, domid);
+		rc = xss_write_guest_domain_ro2(lbuffer, "4", backendid, domid);
+		if (rc) {
+			goto deinit;
+		}
+
+		// VBD Domain part
+
+		sprintf(lbuffer, "%s/%d/device/vbd/51712", basepref, domid);
+		rc = xss_write_guest_domain_ro2(lbuffer, "", domid, backendid);
+		if (rc) {
+			goto deinit;
+		}
+
+		sprintf(lbuffer, "%s/%d/device/vbd/51712/backend", basepref, domid);
+		sprintf(rbuffer, "%s/1/backend/vbd/%d/51712", basepref, domid);
+		rc = xss_write_guest_domain_rw(lbuffer, rbuffer, domid);
+		if (rc) {
+			goto deinit;
+		}
+
+		sprintf(lbuffer, "%s/%d/device/vbd/51712/backend-id", basepref, domid);
+		rc = xss_write_guest_domain_rw(lbuffer, "1", domid);
+		if (rc) {
+			goto deinit;
+		}
+
+		sprintf(lbuffer, "%s/%d/device/vbd/51712/state", basepref, domid);
+		rc = xss_write_guest_domain_ro2(lbuffer, "1", domid, backendid);
+		if (rc) {
+			goto deinit;
+		}
+
+
+		sprintf(lbuffer, "%s/%d/device/vbd/51712/virtual-device", basepref, domid);
+		rc = xss_write_guest_domain_rw(lbuffer, "51712", domid);
+		if (rc) {
+			goto deinit;
+		}
+
+		sprintf(lbuffer, "%s/%d/device/vbd/51712/device-type", basepref, domid);
+		rc = xss_write_guest_domain_rw(lbuffer, "disk", domid);
+		if (rc) {
+			goto deinit;
+		}
+
+		sprintf(lbuffer, "%s/%d/device/vbd/51712/multi-queue-num-queues", basepref, domid);
+		rc = xss_write_guest_domain_ro2(lbuffer, "1", domid, backendid);
+		if (rc) {
+			goto deinit;
+		}
+
+/*		sprintf(lbuffer, "%s/%d/device/vbd/51712/event-channel", basepref, domid);
+		rc = xss_write_guest_domain_rw(lbuffer, "", domid);
+		if (rc) {
+			goto deinit;
+		}
+
+		sprintf(lbuffer, "%s/%d/device/vbd/51712/ring-ref", basepref, domid);
+		rc = xss_write_guest_domain_rw(lbuffer, "", domid);
+		if (rc) {
+			goto deinit;
+		}
+*/
+		// VBD Libxl part
+/*
+		sprintf(lbuffer, "/libxl/%d/device", domid);
+		rc = xss_write(lbuffer, "");
+		if (rc) {
+			goto deinit;
+		}
+
+		sprintf(lbuffer, "/libxl/%d/device/vbd", domid);
+		rc = xss_write(lbuffer, "");
+		if (rc) {
+			goto deinit;
+		}
+
+		sprintf(lbuffer, "/libxl/%d/device/vbd/51712", domid);
+		rc = xss_write(lbuffer, "");
+		if (rc) {
+			goto deinit;
+		}
+
+		sprintf(lbuffer, "/libxl/%d/device/vbd/51712/frontend", domid);
+		sprintf(rbuffer, "/local/domain/%d/device/vbd/51712", domid);
+
+		rc = xss_write(lbuffer, rbuffer);
+		if (rc) {
+			goto deinit;
+		}
+
+		sprintf(lbuffer, "/libxl/%d/device/vbd/51712/backend", domid);
+		sprintf(rbuffer, "/local/domain/1/backend/vbd/%d/51712", domid);
+
+		rc = xss_write(lbuffer, rbuffer);
+		if (rc) {
+			goto deinit;
+		}
+
+		sprintf(lbuffer, "/libxl/%d/device/vbd/51712/params", domid);
+		rc = xss_write(lbuffer, "/bin/bash");
+		if (rc) {
+			goto deinit;
+		}
+
+		sprintf(lbuffer, "/libxl/%d/device/vbd/51712/script", domid);
+		rc = xss_write(lbuffer, "/etc/xen/scripts/block");
+		if (rc) {
+			goto deinit;
+		}
+
+		sprintf(lbuffer, "/libxl/%d/device/vbd/51712/frontend-id", domid);
+		sprintf(rbuffer, "%d", domid);
+		rc = xss_write(lbuffer, rbuffer);
+		if (rc) {
+			goto deinit;
+		}
+
+		sprintf(lbuffer, "/libxl/%d/device/vbd/51712/online", domid);
+		rc = xss_write(lbuffer, "1");
+		if (rc) {
+			goto deinit;
+		}
+
+		sprintf(lbuffer, "/libxl/%d/device/vbd/51712/removable", domid);
+		rc = xss_write(lbuffer, "0");
+		if (rc) {
+			goto deinit;
+		}
+
+		sprintf(lbuffer, "/libxl/%d/device/vbd/51712/bootable", domid);
+		rc = xss_write(lbuffer, "1");
+		if (rc) {
+			goto deinit;
+		}
+
+		sprintf(lbuffer, "/libxl/%d/device/vbd/51712/state", domid);
+		rc = xss_write(lbuffer, "1");
+		if (rc) {
+			goto deinit;
+		}
+
+		sprintf(lbuffer, "/libxl/%d/device/vbd/51712/dev", domid);
+		rc = xss_write(lbuffer, "xvda");
+		if (rc) {
+			goto deinit;
+		}
+
+		sprintf(lbuffer, "/libxl/%d/device/vbd/51712/type", domid);
+		rc = xss_write(lbuffer, "phy");
+		if (rc) {
+			goto deinit;
+		}
+
+		sprintf(lbuffer, "/libxl/%d/device/vbd/51712/mode", domid);
+		rc = xss_write(lbuffer, "w");
+		if (rc) {
+			goto deinit;
+		}
+
+		sprintf(lbuffer, "/libxl/%d/device/vbd/51712/device-type", domid);
+		rc = xss_write(lbuffer, "disk");
+		if (rc) {
+			goto deinit;
+		}
+
+		sprintf(lbuffer, "/libxl/%d/device/vbd/51712/discard-enable", domid);
+		rc = xss_write(lbuffer, "1");
+		if (rc) {
+			goto deinit;
+		}
+*/
+
+#if 1
+		//==========================================================================
+		// VIF Backend domain part
+		sprintf(lbuffer, "%s/%d/backend/vif", basepref, backendid);
+		rc = xss_write_guest_domain_ro2(lbuffer, "", backendid, domid);
+		if (rc) {
+			goto deinit;
+		}
+
+		sprintf(lbuffer, "%s/%d/backend/vif/%d", basepref, backendid, domid);
+		rc = xss_write_guest_domain_ro2(lbuffer, "", backendid, domid);
+		if (rc) {
+			goto deinit;
+		}
+
+		sprintf(lbuffer, "%s/%d/backend/vif/%d/0", basepref, backendid, domid);
+		rc = xss_write_guest_domain_ro2(lbuffer, "", backendid, domid);
+		if (rc) {
+			goto deinit;
+		}
+
+		sprintf(lbuffer, "%s/%d/backend/vif/%d/0/frontend", basepref, backendid, domid);
+		sprintf(rbuffer, "/local/domain/%d/device/vif/0", domid);
+		rc = xss_write_guest_domain_ro2(lbuffer, rbuffer, backendid, domid);
+		if (rc) {
+			goto deinit;
+		}
+
+		sprintf(lbuffer, "%s/%d/backend/vif/%d/0/frontend-id", basepref, backendid, domid);
+		sprintf(rbuffer, "%d", domid);
+		rc = xss_write_guest_domain_ro2(lbuffer, rbuffer, backendid, domid);
+		if (rc) {
+			goto deinit;
+		}
+
+		sprintf(lbuffer, "%s/%d/backend/vif/%d/0/state", basepref, backendid, domid);
+		rc = xss_write_guest_domain_ro2(lbuffer, "1", backendid, domid);
+		if (rc) {
+			goto deinit;
+		}
+
+		sprintf(lbuffer, "%s/%d/backend/vif/%d/0/online", basepref, backendid, domid);
+		rc = xss_write_guest_domain_ro2(lbuffer, "1", backendid, domid);
+		if (rc) {
+			goto deinit;
+		}
+
+		sprintf(lbuffer, "%s/%d/backend/vif/%d/0/script", basepref, backendid, domid);
+		rc = xss_write_guest_domain_ro2(lbuffer, "/etc/xen/scripts/vif-bridge", backendid, domid);
+		if (rc) {
+			goto deinit;
+		}
+
+		sprintf(lbuffer, "%s/%d/backend/vif/%d/0/mac", basepref, backendid, domid);
+		rc = xss_write_guest_domain_ro2(lbuffer, "08:00:27:ff:cb:ce", backendid, domid);
+		if (rc) {
+			goto deinit;
+		}
+
+		sprintf(lbuffer, "%s/%d/backend/vif/%d/0/bridge", basepref, backendid, domid);
+		rc = xss_write_guest_domain_ro2(lbuffer, "xenbr0", backendid, domid);
+		if (rc) {
+			goto deinit;
+		}
+
+		sprintf(lbuffer, "%s/%d/backend/vif/%d/0/handle", basepref, backendid, domid);
+		rc = xss_write_guest_domain_ro2(lbuffer, "0", backendid, domid);
+		if (rc) {
+			goto deinit;
+		}
+
+		sprintf(lbuffer, "%s/%d/backend/vif/%d/0/type", basepref, backendid, domid);
+		rc = xss_write_guest_domain_ro2(lbuffer, "vif", backendid, domid);
+		if (rc) {
+			goto deinit;
+		}
+
+		sprintf(lbuffer, "%s/%d/backend/vif/%d/0/multi-queue-max-queues", basepref, backendid, domid);
+		rc = xss_write_guest_domain_ro2(lbuffer, "4", backendid, domid);
+		if (rc) {
+			goto deinit;
+		}
+
+		sprintf(lbuffer, "%s/%d/backend/vif/%d/0/feature-sg", basepref, backendid, domid);
+		rc = xss_write_guest_domain_ro2(lbuffer, "1", backendid, domid);
+		if (rc) {
+			goto deinit;
+		}
+
+		sprintf(lbuffer, "%s/%d/backend/vif/%d/0/feature-gso-tcpv4", basepref, backendid, domid);
+		rc = xss_write_guest_domain_ro2(lbuffer, "1", backendid, domid);
+		if (rc) {
+			goto deinit;
+		}
+
+		sprintf(lbuffer, "%s/%d/backend/vif/%d/0/feature-gso-tcpv6", basepref, backendid, domid);
+		rc = xss_write_guest_domain_ro2(lbuffer, "1", backendid, domid);
+		if (rc) {
+			goto deinit;
+		}
+
+		sprintf(lbuffer, "%s/%d/backend/vif/%d/0/feature-ipv6-csum-offload", basepref, backendid, domid);
+		rc = xss_write_guest_domain_ro2(lbuffer, "1", backendid, domid);
+		if (rc) {
+			goto deinit;
+		}
+
+		sprintf(lbuffer, "%s/%d/backend/vif/%d/0/feature-rx-copy", basepref, backendid, domid);
+		rc = xss_write_guest_domain_ro2(lbuffer, "1", backendid, domid);
+		if (rc) {
+			goto deinit;
+		}
+
+		sprintf(lbuffer, "%s/%d/backend/vif/%d/0/feature-xdp-headroom", basepref, backendid, domid);
+		rc = xss_write_guest_domain_ro2(lbuffer, "1", backendid, domid);
+		if (rc) {
+			goto deinit;
+		}
+
+		sprintf(lbuffer, "%s/%d/backend/vif/%d/0/feature-rx-flip", basepref, backendid, domid);
+		rc = xss_write_guest_domain_ro2(lbuffer, "0", backendid, domid);
+		if (rc) {
+			goto deinit;
+		}
+
+		sprintf(lbuffer, "%s/%d/backend/vif/%d/0/feature-multicast-control", basepref, backendid, domid);
+		rc = xss_write_guest_domain_ro2(lbuffer, "1", backendid, domid);
+		if (rc) {
+			goto deinit;
+		}
+
+		sprintf(lbuffer, "%s/%d/backend/vif/%d/0/feature-dynamic-multicast-control", basepref, backendid, domid);
+		rc = xss_write_guest_domain_ro2(lbuffer, "1", backendid, domid);
+		if (rc) {
+			goto deinit;
+		}
+
+		sprintf(lbuffer, "%s/%d/backend/vif/%d/0/feature-split-event-channels", basepref, backendid, domid);
+		rc = xss_write_guest_domain_ro2(lbuffer, "1", backendid, domid);
+		if (rc) {
+			goto deinit;
+		}
+
+		sprintf(lbuffer, "%s/%d/backend/vif/%d/0/feature-ctrl-ring", basepref, backendid, domid);
+		rc = xss_write_guest_domain_ro2(lbuffer, "1", backendid, domid);
+		if (rc) {
+			goto deinit;
+		}
+
+		/*sprintf(lbuffer, "%s/%d/backend/vif/%d/0/hotplug-status", basepref, backendid, domid);
+		rc = xss_write_guest_domain_ro2(lbuffer, "", backendid, domid);
+		if (rc) {
+			goto deinit;
+		}*/
+
+		sprintf(lbuffer, "%s/%d/backend/vif/%d/0/ip", basepref, backendid, domid);
+		rc = xss_write_guest_domain_ro2(lbuffer, "192.168.0.4 255.255.255.0 192.168.0.1", backendid, domid);
+		if (rc) {
+			goto deinit;
+		} 
+
+		// VIF domain part
+		sprintf(lbuffer, "%s/%d/device/vif", basepref, domid);
+		rc = xss_write_guest_domain_ro2(lbuffer, "", domid, backendid);
+		if (rc) {
+			goto deinit;
+		}
+
+		sprintf(lbuffer, "%s/%d/device/vif/0", basepref, domid);
+		rc = xss_write_guest_domain_ro2(lbuffer, "", domid, backendid);
+		if (rc) {
+			goto deinit;
+		}
+
+		sprintf(lbuffer, "%s/%d/device/vif/0/backend", basepref, domid);
+		sprintf(rbuffer, "/local/domain/%d/backend/vif/%d/0", backendid, domid);
+		rc = xss_write_guest_domain_ro2(lbuffer, rbuffer, domid, backendid);
+		if (rc) {
+			goto deinit;
+		}
+
+
+		sprintf(lbuffer, "%s/%d/device/vif/0/backend-id", basepref, domid);
+		sprintf(rbuffer, "%d", backendid);
+		rc = xss_write_guest_domain_ro2(lbuffer, rbuffer, domid, backendid);
+		if (rc) {
+			goto deinit;
+		}
+
+		sprintf(lbuffer, "%s/%d/device/vif/0/state", basepref, domid);
+		rc = xss_write_guest_domain_ro2(lbuffer, "1", domid, backendid);
+		if (rc) {
+			goto deinit;
+		}
+
+		sprintf(lbuffer, "%s/%d/device/vif/0/handle", basepref, domid);
+		rc = xss_write_guest_domain_ro2(lbuffer, "0", domid, backendid);
+		if (rc) {
+			goto deinit;
+		}
+
+		sprintf(lbuffer, "%s/%d/device/vif/0/mac", basepref, domid);
+		rc = xss_write_guest_domain_ro2(lbuffer, "08:00:27:ff:cb:ce", domid, backendid);
+		if (rc) {
+			goto deinit;
+		}
+
+		sprintf(lbuffer, "%s/%d/device/vif/0/mtu", basepref, domid);
+		rc = xss_write_guest_domain_ro2(lbuffer, "1500", backendid, domid);
+		if (rc) {
+			goto deinit;
+		}
+
+		sprintf(lbuffer, "%s/%d/device/vif/0/multi-queue-num-queues", basepref, domid);
+		rc = xss_write_guest_domain_ro2(lbuffer, "1", domid, backendid);
+		if (rc) {
+			goto deinit;
+		}
+
+		sprintf(lbuffer, "%s/%d/device/vif/0/request-rx-copy", basepref, domid);
+		rc = xss_write_guest_domain_ro2(lbuffer, "1", domid, backendid);
+		if (rc) {
+			goto deinit;
+		}
+#endif
+/*
+		// VIF Libxl part
+		sprintf(lbuffer, "/libxl/%d/device/vif", domid);
+		rc = xss_write(lbuffer, "");
+		if (rc) {
+			goto deinit;
+		}
+
+		sprintf(lbuffer, "/libxl/%d/device/vif/0", domid);
+		rc = xss_write(lbuffer, "");
+		if (rc) {
+			goto deinit;
+		}
+
+		sprintf(lbuffer, "/libxl/%d/device/vif/0/frontend", domid);
+		sprintf(rbuffer, "/local/domain/%d/device/vif/0", domid);
+		rc = xss_write(lbuffer, rbuffer);
+		if (rc) {
+			goto deinit;
+		}
+
+		sprintf(lbuffer, "/libxl/%d/device/vif/0/backend", domid);
+		sprintf(rbuffer, "/local/domain/%d/backend/vif/%d/0", backendid, domid);
+		rc = xss_write(lbuffer, rbuffer);
+		if (rc) {
+			goto deinit;
+		}
+
+		sprintf(lbuffer, "/libxl/%d/device/vif/0/frontend-id", domid);
+		sprintf(rbuffer, "%d", domid);
+		rc = xss_write(lbuffer, rbuffer);
+		if (rc) {
+			goto deinit;
+		}
+
+		sprintf(lbuffer, "/libxl/%d/device/vif/0/script", domid);
+		rc = xss_write(lbuffer, "/etc/xen/scripts/vif-bridge");
+		if (rc) {
+			goto deinit;
+		}
+
+		sprintf(lbuffer, "/libxl/%d/device/vif/0/mac", domid);
+		rc = xss_write(lbuffer, "08:00:27:ff:cb:ce");
+		if (rc) {
+			goto deinit;
+		}
+
+		sprintf(lbuffer, "/libxl/%d/device/vif/0/bridge", domid);
+		rc = xss_write(lbuffer, "xenbr0");
+		if (rc) {
+			goto deinit;
+		}
+
+		sprintf(lbuffer, "/libxl/%d/device/vif/0/handle", domid);
+		rc = xss_write(lbuffer, "0");
+		if (rc) {
+			goto deinit;
+		}
+
+		sprintf(lbuffer, "/libxl/%d/device/vif/0/type", domid);
+		rc = xss_write(lbuffer, "vif");
+		if (rc) {
+			goto deinit;
+		}
+*/
+	}
+#endif
+
 	return 0;
 
 deinit:
