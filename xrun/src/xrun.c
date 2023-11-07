@@ -143,6 +143,29 @@ static const struct json_obj_descr domain_spec_descr[] = {
 	JSON_OBJ_DESCR_OBJECT(struct domain_spec, vm, vm_spec_descr),
 };
 
+#if 1
+	char json[] = "{"
+		"\"ociVersion\" : \"1.0.1\", "
+		"\"vm\" : { "
+		"\"hypervisor\": { "
+		"\"path\": \"xen\", "
+		"\"parameters\": [\"pvcalls=false\"] "
+		"}, "
+		"\"kernel\": { "
+		"\"path\" : \"/lfs/unikernel.bin\", "
+		"\"parameters\" : [ \"port=8124\", \"hello world\" ]"
+		"}, "
+		"\"hwConfig\": { "
+		"\"deviceTree\": \"\", "
+		"\"memKB\": 8192, "
+		"\"irqs\": [ ] "
+		"} "
+		"} "
+		"}";
+#endif
+
+bool j_injection = 0;
+
 int parse_config_json(char *json, size_t json_size, struct domain_spec *domain)
 {
 	int expected_return_code = (1 << ARRAY_SIZE(domain_spec_descr)) - 1;
@@ -236,10 +259,13 @@ static int unregister_container_id(const char *container_id)
 	return 0;
 }
 
+extern char __img_u_start[];
+extern char __img_u_end[];
+
 static int load_image_bytes(uint8_t *buf, size_t bufsize,
 			    uint64_t image_load_offset, void *image_info)
 {
-	ssize_t res;
+	ssize_t res = 0;
 	struct container *container;
 
 	if (!image_info || !buf) {
@@ -248,9 +274,13 @@ static int load_image_bytes(uint8_t *buf, size_t bufsize,
 
 	container = (struct container *)image_info;
 
-	res = xrun_read_file(container->kernel_image, buf,
+	if (j_injection) {
+		memcpy(buf, __img_u_start + image_load_offset, bufsize);
+	}
+	else {
+		res = xrun_read_file(container->kernel_image, buf,
 			     bufsize, image_load_offset);
-
+	}
 	return (res > 0) ? 0 : res;
 }
 
@@ -264,8 +294,11 @@ static ssize_t get_image_size(void *image_info, uint64_t *size)
 	}
 
 	containter = (struct container *)image_info;
-
-	image_size = xrun_get_file_size(containter->kernel_image);
+	if (j_injection) {
+		image_size = __img_u_end - __img_u_start;
+	} else {
+		image_size = xrun_get_file_size(containter->kernel_image);
+	}
 	if (image_size > 0) {
 		*size = image_size;
 	}
@@ -495,11 +528,13 @@ int xrun_run(const char *bundle, int console_socket, const char *container_id)
 		goto err_unlock;
 	}
 
+	if (bundle[0] != 'u') {
 	config = k_malloc(CONFIG_XRUN_JSON_SIZE_MAX);
 	if (!config) {
 		ret = -ENOMEM;
 		goto err;
 	}
+
 
 	fpath_len = get_fpath_size(bundle, CONFIG_JSON_NAME);
 	if (fpath_len < 0) {
@@ -531,6 +566,12 @@ int xrun_run(const char *bundle, int console_socket, const char *container_id)
 	}
 
 	k_free(fpath);
+	} else {		
+		config = json;
+		bytes_read = sizeof(json);
+		j_injection = 1;
+		LOG_ERR("== Injecting JSON = %ld", bytes_read);
+	}
 
 	ret = parse_config_json(config, bytes_read, &spec);
 	if (ret < 0) {
@@ -563,7 +604,8 @@ int xrun_run(const char *bundle, int console_socket, const char *container_id)
 		goto err_config;
 	}
 
-	k_free(config);
+	if (!j_injection)
+		k_free(config);
 
 	container->bundle = bundle;
 	container->status = RUNNING;
