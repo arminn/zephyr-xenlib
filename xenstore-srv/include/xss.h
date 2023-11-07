@@ -95,6 +95,24 @@ int xss_set_perm(const char *path, domid_t domid, enum xs_perm perm);
  */
 int xss_rm(const char *path);
 
+#define WRITE_GUEST_WITH_PERMISSIONS(lbuffer, buffer, id, domid) \
+    do {                                                		 \
+        int rc = xss_write_guest_with_permissions(         		 \
+            lbuffer, buffer, id, domid);                		 \
+        if (rc) {                                       		 \
+            return rc;                                  		 \
+        }                                               		 \
+    } while (0)
+
+#define WRITE_GUEST_DOMAIN_RO(lbuffer, buffer, id) 		\
+    do {                                                \
+        int rc = xss_write_guest_domain_ro(         	\
+            lbuffer, buffer, id);                   	\
+        if (rc) {                                       \
+            return rc;                                  \
+        }                                               \
+    } while (0)
+
 #ifdef __cplusplus
 }
 #endif

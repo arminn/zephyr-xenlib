@@ -20,6 +20,7 @@
 
 #include <storage.h>
 #include <xen_dom_mgmt.h>
+#include <xl_parser.h>
 #include "xrun.h"
 
 LOG_MODULE_REGISTER(xrun);
@@ -273,6 +274,15 @@ static ssize_t get_image_size(void *image_info, uint64_t *size)
 	return (size == 0) ? -EINVAL : 0;
 }
 
+static void fill_backfront_domcfg(struct xen_domain_cfg *domcfg, struct domain_spec *spec)
+{
+	memset(&domcfg->back_cfg, 0, sizeof(domcfg->back_cfg));
+
+	for (int i = 0; i< spec->vm.hypervisor.params_len; i++) {
+		parse_one_record_and_fill_cfg(spec->vm.hypervisor.parameters[i], &domcfg->back_cfg);
+	}
+}
+
 static int fill_domcfg(struct xen_domain_cfg *domcfg, struct domain_spec *spec,
 		       struct container *container)
 {
@@ -382,6 +392,8 @@ static int fill_domcfg(struct xen_domain_cfg *domcfg, struct domain_spec *spec,
 		domcfg->dtb_start = NULL;
 		domcfg->dtb_end = NULL;
 	}
+
+	fill_backfront_domcfg(domcfg, spec);
 
 	return 0;
 }
