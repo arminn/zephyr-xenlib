@@ -638,6 +638,195 @@ static void deinitialize_domain_xenstore(uint32_t domid)
 	xss_rm(path);
 }
 
+static int add_pvblock_xenstore(const struct pv_block_configuration* cfg, int domid)
+{
+	char lbuffer[INIT_XENSTORE_BUFF_SIZE] = { 0 };
+	char rbuffer[INIT_XENSTORE_BUFF_SIZE] = { 0 };
+	static const char basepref[] = "/local/domain";
+
+	if (!cfg->configured)
+		return 0;
+
+	int backendid = cfg->backend_domain_id;
+	int vbd_id = 51712;
+
+	// backend domain part
+
+	sprintf(lbuffer, "%s/%d/backend", basepref, backendid);
+	WRITE_GUEST_DOMAIN_RO(lbuffer, "", backendid);
+
+	sprintf(lbuffer, "%s/%d/backend/vbd", basepref, backendid);
+	WRITE_GUEST_DOMAIN_RO(lbuffer, "", backendid);
+
+	sprintf(lbuffer, "%s/%d/backend/vbd/%d", basepref, backendid, domid);
+	WRITE_GUEST_DOMAIN_RO(lbuffer, "", backendid);
+
+	sprintf(lbuffer, "%s/%d/backend/vbd/%d/%d", basepref, backendid, domid, vbd_id);
+	WRITE_GUEST_WITH_PERMISSIONS(lbuffer, "", backendid, domid);
+
+	sprintf(lbuffer, "%s/%d/backend/vbd/%d/%d/frontend", basepref, backendid, domid, vbd_id);
+	sprintf(rbuffer, "/local/domain/%d/device/vbd/%d", domid, vbd_id);
+	WRITE_GUEST_WITH_PERMISSIONS(lbuffer, rbuffer, backendid, domid);
+
+	sprintf(lbuffer, "%s/%d/backend/vbd/%d/%d/params", basepref, backendid, domid, vbd_id);
+	WRITE_GUEST_WITH_PERMISSIONS(lbuffer, cfg->target, backendid, domid);
+
+	sprintf(lbuffer, "%s/%d/backend/vbd/%d/%d/script", basepref, backendid, domid, vbd_id);
+	WRITE_GUEST_WITH_PERMISSIONS(lbuffer, cfg->script, backendid, domid);
+
+	sprintf(lbuffer, "%s/%d/backend/vbd/%d/%d/frontend-id", basepref, backendid, domid, vbd_id);
+	sprintf(rbuffer, "%d", domid);
+	WRITE_GUEST_WITH_PERMISSIONS(lbuffer, rbuffer, backendid, domid);
+
+	sprintf(lbuffer, "%s/%d/backend/vbd/%d/%d/online", basepref, backendid, domid, vbd_id);
+	WRITE_GUEST_WITH_PERMISSIONS(lbuffer, "1", backendid, domid);
+
+	sprintf(lbuffer, "%s/%d/backend/vbd/%d/%d/removable", basepref, backendid, domid, vbd_id);
+	WRITE_GUEST_WITH_PERMISSIONS(lbuffer, "0", backendid, domid);
+
+	sprintf(lbuffer, "%s/%d/backend/vbd/%d/%d/bootable", basepref, backendid, domid, vbd_id);
+	WRITE_GUEST_WITH_PERMISSIONS(lbuffer, "1", backendid, domid);
+
+	sprintf(lbuffer, "%s/%d/backend/vbd/%d/%d/state", basepref, backendid, domid, vbd_id);
+	WRITE_GUEST_WITH_PERMISSIONS(lbuffer, "1", backendid, domid);
+
+	sprintf(lbuffer, "%s/%d/backend/vbd/%d/%d/dev", basepref, backendid, domid, vbd_id);
+	WRITE_GUEST_WITH_PERMISSIONS(lbuffer, cfg->vdev, backendid, domid);
+
+	sprintf(lbuffer, "%s/%d/backend/vbd/%d/%d/type", basepref, backendid, domid, vbd_id);
+	WRITE_GUEST_WITH_PERMISSIONS(lbuffer, cfg->backendtype, backendid, domid);
+
+	sprintf(lbuffer, "%s/%d/backend/vbd/%d/%d/mode", basepref, backendid, domid, vbd_id);
+	WRITE_GUEST_WITH_PERMISSIONS(lbuffer, "w", backendid, domid);
+
+	sprintf(lbuffer, "%s/%d/backend/vbd/%d/%d/device-type", basepref, backendid, domid, vbd_id);
+	WRITE_GUEST_WITH_PERMISSIONS(lbuffer, "disk", backendid, domid);
+
+	sprintf(lbuffer, "%s/%d/backend/vbd/%d/%d/discard-enable", basepref, backendid, domid, vbd_id);
+	WRITE_GUEST_WITH_PERMISSIONS(lbuffer, "1", backendid, domid);
+
+	// guest domain part
+
+	sprintf(lbuffer, "%s/%d/device/vbd/%d", basepref, domid, vbd_id);
+	WRITE_GUEST_WITH_PERMISSIONS(lbuffer, "", domid, backendid);
+
+	sprintf(lbuffer, "%s/%d/device/vbd/%d/backend", basepref, domid, vbd_id);
+	sprintf(rbuffer, "%s/1/backend/vbd/%d/%d", basepref, domid, vbd_id);
+	WRITE_GUEST_WITH_PERMISSIONS(lbuffer, rbuffer, domid, backendid);
+
+	sprintf(lbuffer, "%s/%d/device/vbd/%d/backend-id", basepref, domid, vbd_id);
+	WRITE_GUEST_WITH_PERMISSIONS(lbuffer, "1", domid, backendid);
+
+	sprintf(lbuffer, "%s/%d/device/vbd/%d/state", basepref, domid, vbd_id);
+	WRITE_GUEST_WITH_PERMISSIONS(lbuffer, "1", domid, backendid);
+
+	sprintf(lbuffer, "%s/%d/device/vbd/%d/virtual-device", basepref, domid, vbd_id);
+	sprintf(rbuffer, "%d", vbd_id);
+	WRITE_GUEST_WITH_PERMISSIONS(lbuffer, rbuffer, domid, backendid);
+
+	sprintf(lbuffer, "%s/%d/device/vbd/%d/device-type", basepref, domid, vbd_id);
+	WRITE_GUEST_WITH_PERMISSIONS(lbuffer, "disk", domid, backendid);
+
+	sprintf(lbuffer, "%s/%d/device/vbd/%d/event-channel", basepref, domid, vbd_id);
+	WRITE_GUEST_WITH_PERMISSIONS(lbuffer, "", domid, backendid);
+
+	return 0;
+}
+
+static int add_pvnet_xenstore(const struct pv_net_configuration* cfg, int domid, int instance_id)
+{
+	char lbuffer[INIT_XENSTORE_BUFF_SIZE] = { 0 };
+	char rbuffer[INIT_XENSTORE_BUFF_SIZE] = { 0 };
+	static const char basepref[] = "/local/domain";
+
+	if (!cfg->configured)
+		return 0;
+
+	int backendid = cfg->backend_domain_id;
+
+	// VIF Backend domain part
+	sprintf(lbuffer, "%s/%d/backend/vif", basepref, backendid);
+	WRITE_GUEST_WITH_PERMISSIONS(lbuffer, "", backendid, domid);
+
+	sprintf(lbuffer, "%s/%d/backend/vif/%d", basepref, backendid, domid);
+	WRITE_GUEST_WITH_PERMISSIONS(lbuffer, "", backendid, domid);
+
+	sprintf(lbuffer, "%s/%d/backend/vif/%d/%d", basepref, backendid, domid, instance_id);
+	WRITE_GUEST_WITH_PERMISSIONS(lbuffer, "", backendid, domid);
+
+	sprintf(lbuffer, "%s/%d/backend/vif/%d/%d/frontend", basepref, backendid, domid, instance_id);
+	sprintf(rbuffer, "/local/domain/%d/device/vif/%d", domid, instance_id);
+	WRITE_GUEST_WITH_PERMISSIONS(lbuffer, rbuffer, backendid, domid);
+
+	sprintf(lbuffer, "%s/%d/backend/vif/%d/%d/frontend-id", basepref, backendid, domid, instance_id);
+	sprintf(rbuffer, "%d", domid);
+	WRITE_GUEST_WITH_PERMISSIONS(lbuffer, rbuffer, backendid, domid);
+
+	sprintf(lbuffer, "%s/%d/backend/vif/%d/%d/state", basepref, backendid, domid, instance_id);
+	WRITE_GUEST_WITH_PERMISSIONS(lbuffer, "1", backendid, domid);
+
+	sprintf(lbuffer, "%s/%d/backend/vif/%d/%d/online", basepref, backendid, domid, instance_id);
+	WRITE_GUEST_WITH_PERMISSIONS(lbuffer, "1", backendid, domid);
+
+	sprintf(lbuffer, "%s/%d/backend/vif/%d/%d/script", basepref, backendid, domid, instance_id);
+	WRITE_GUEST_WITH_PERMISSIONS(lbuffer, cfg->script, backendid, domid);
+
+	sprintf(lbuffer, "%s/%d/backend/vif/%d/%d/mac", basepref, backendid, domid, instance_id);
+	WRITE_GUEST_WITH_PERMISSIONS(lbuffer, cfg->mac, backendid, domid);
+
+	sprintf(lbuffer, "%s/%d/backend/vif/%d/%d/bridge", basepref, backendid, domid, instance_id);
+	WRITE_GUEST_WITH_PERMISSIONS(lbuffer, cfg->bridge, backendid, domid);
+
+	sprintf(lbuffer, "%s/%d/backend/vif/%d/%d/handle", basepref, backendid, domid, instance_id);
+	WRITE_GUEST_WITH_PERMISSIONS(lbuffer, "0", backendid, domid);
+
+	sprintf(lbuffer, "%s/%d/backend/vif/%d/%d/type", basepref, backendid, domid, instance_id);
+	WRITE_GUEST_WITH_PERMISSIONS(lbuffer, cfg->type, backendid, domid);
+
+	sprintf(lbuffer, "%s/%d/backend/vif/%d/%d/hotplug-status", basepref, backendid, domid, instance_id);
+	WRITE_GUEST_WITH_PERMISSIONS(lbuffer, "", backendid, domid);
+
+	if (cfg->ip[0]) {
+		sprintf(lbuffer, "%s/%d/backend/vif/%d/%d/ip", basepref, backendid, domid, instance_id);
+		WRITE_GUEST_WITH_PERMISSIONS(lbuffer, cfg->ip, backendid, domid);
+	}
+
+	// VIF domain part
+	sprintf(lbuffer, "%s/%d/device/vif", basepref, domid);
+	WRITE_GUEST_WITH_PERMISSIONS(lbuffer, "", domid, backendid);
+
+	sprintf(lbuffer, "%s/%d/device/vif/%d", basepref, domid, instance_id);
+	WRITE_GUEST_WITH_PERMISSIONS(lbuffer, "", domid, backendid);
+
+	sprintf(lbuffer, "%s/%d/device/vif/%d/backend", basepref, domid, instance_id);
+	sprintf(rbuffer, "/local/domain/%d/backend/vif/%d/%d", backendid, domid, instance_id);
+	WRITE_GUEST_WITH_PERMISSIONS(lbuffer, rbuffer, domid, backendid);
+
+	sprintf(lbuffer, "%s/%d/device/vif/%d/backend-id", basepref, domid, instance_id);
+	sprintf(rbuffer, "%d", backendid);
+	WRITE_GUEST_WITH_PERMISSIONS(lbuffer, rbuffer, domid, backendid);
+
+	sprintf(lbuffer, "%s/%d/device/vif/%d/state", basepref, domid, instance_id);
+	WRITE_GUEST_WITH_PERMISSIONS(lbuffer, "1", domid, backendid);
+
+	sprintf(lbuffer, "%s/%d/device/vif/%d/handle", basepref, domid, instance_id);
+	WRITE_GUEST_WITH_PERMISSIONS(lbuffer, "0", domid, backendid);
+
+	sprintf(lbuffer, "%s/%d/device/vif/%d/mac", basepref, domid, instance_id);
+	WRITE_GUEST_WITH_PERMISSIONS(lbuffer, cfg->mac, domid, backendid);
+
+	sprintf(lbuffer, "%s/%d/device/vif/%d/mtu", basepref, domid, instance_id);
+	WRITE_GUEST_WITH_PERMISSIONS(lbuffer, "1500", backendid, domid);
+
+	sprintf(lbuffer, "%s/%d/device/vif/%d/multi-queue-num-queues", basepref, domid, instance_id);
+	WRITE_GUEST_WITH_PERMISSIONS(lbuffer, "1", domid, backendid);
+
+	sprintf(lbuffer, "%s/%d/device/vif/%d/request-rx-copy", basepref, domid, instance_id);
+	WRITE_GUEST_WITH_PERMISSIONS(lbuffer, "1", domid, backendid);
+
+	return 0;
+}
+
 static int initialize_xenstore(uint32_t domid,
 			       const struct xen_domain_cfg *domcfg,
 			       const struct xen_domain *domain)
@@ -774,6 +963,26 @@ static int initialize_xenstore(uint32_t domid,
 	rc = xss_write(lbuffer, "pvh");
 	if (rc) {
 		goto deinit;
+	}
+
+	for (int i = 0; i < MAX_PV_BLOCK_DEVICES; i++) {
+		if (domcfg->back_cfg.disks[i].configured) {
+			rc = add_pvblock_xenstore(&domcfg->back_cfg.disks[i], domid);
+			if (rc) {
+				LOG_ERR("Failed to initialize pvblock xenstore records for domid#%u (rc=%d)", domid, rc);
+				goto deinit;
+			}
+		}
+	}
+
+	for (int i = 0; i < MAX_PV_NET_DEVICES; i++) {
+		if (domcfg->back_cfg.vifs[i].configured) {
+			rc = add_pvnet_xenstore(&domcfg->back_cfg.vifs[i], domid, i);
+			if (rc) {
+				LOG_ERR("Failed to initialize pvnet xenstore records for domid#%u (rc=%d)", domid, rc);
+				goto deinit;
+			}
+		}
 	}
 
 	return 0;
