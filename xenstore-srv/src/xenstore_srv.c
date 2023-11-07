@@ -519,12 +519,16 @@ static void handle_directory(struct xenstore *xenstore, uint32_t id,
 		send_errno(xenstore, id, rc);
 		return;
 	}
-
+	LOG_ERR("DIRECTORY[%d] {%s}",xenstore->domain->domid, path);
 	k_mutex_lock(&xsel_mutex, K_FOREVER);
 	entry = key_to_entry_check_perm(path, xenstore->domain->domid, XS_PERM_READ);
 	k_free(path);
 	if (!entry) {
-		goto out;
+		//goto out;
+		k_mutex_unlock(&xsel_mutex);
+		send_errno(xenstore, id, ENOENT);
+		k_free(dir_list);
+		return;
 	}
 
 	/* Calculate total length of dirs child node names */
