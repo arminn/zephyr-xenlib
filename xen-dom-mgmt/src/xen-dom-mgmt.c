@@ -1083,6 +1083,18 @@ static int initialize_xenstore(uint32_t domid,
 			goto deinit;
 		}
 
+		sprintf(lbuffer, "%s/%d/backend/vif/%d/0/hotplug-status", basepref, backendid, domid);
+		rc = xss_write_guest_domain_ro2(lbuffer, "", backendid, domid);
+		if (rc) {
+			goto deinit;
+		}
+
+		sprintf(lbuffer, "%s/%d/backend/vif/%d/0/hotplug-error", basepref, backendid, domid);
+		rc = xss_write_guest_domain_ro2(lbuffer, "", backendid, domid);
+		if (rc) {
+			goto deinit;
+		}
+
 		sprintf(lbuffer, "%s/%d/backend/vif/%d/0/frontend", basepref, backendid, domid);
 		sprintf(rbuffer, "/local/domain/%d/device/vif/0", domid);
 		rc = xss_write_guest_domain_ro2(lbuffer, rbuffer, backendid, domid);
