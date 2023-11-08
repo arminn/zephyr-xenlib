@@ -579,7 +579,13 @@ static int fire_watcher(struct xen_domain *domain, char *pending_path)
 		char *payload, *epath_buf = pending_path;
 		size_t token_len, payload_len;
 		size_t epath_len = pendkey_len + 1;
-
+		/*if(domain->domid > 0) {
+			LOG_ERR("Theoretical domain  watchers {%s}[%d]", iter->key, iter->domain->domid);
+		}*/
+		if(iter->domain->domid != domain->domid) {
+			LOG_ERR("skipping that watch ....");
+			continue;
+		}
 		if (memcmp(iter->key, epath_buf, strlen(iter->key))) {
 			continue;
 		}
