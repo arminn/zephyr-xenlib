@@ -1562,7 +1562,12 @@ int domain_create(struct xen_domain_cfg *domcfg, uint32_t domid)
 			goto stop_domain_console;
 		}
 	} else {
-		LOG_INF("Created domain is paused\nTo unpause issue: xu unpause -d %u", domid);
+		LOG_INF("Created domain is UNpaused\nTo unpause issue: xu unpause -d %u", domid);
+		rc = xen_domctl_unpausedomain(domid);
+		if (rc) {
+			LOG_ERR("Failed to unpause domain#%u (rc=%d)", domid, rc);
+			goto stop_domain_console;
+		}
 	}
 
 	k_mutex_lock(&dl_mutex, K_FOREVER);
