@@ -57,6 +57,15 @@ int xss_write_guest_domain_rw(const char *path, const char *value, uint32_t domi
 int xss_write_guest_domain_ro(const char *path, const char *value, uint32_t domid);
 
 /*
+ * Associates a value with a path and set read-only permissions for given domid.
+ *
+ * @param path Xenstore path
+ * @param value Xenstore value
+ * @return 0 on success, a negative errno value on error.
+ */
+int xss_write_guest_domain_ro2(const char *path, const char *value, uint32_t domidb, uint32_t domid);
+
+/*
  * Read path and parse it as an integer.
  *
  * @param path Xenstore path

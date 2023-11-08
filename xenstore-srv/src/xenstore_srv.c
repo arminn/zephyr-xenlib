@@ -1052,6 +1052,49 @@ int xss_write_guest_domain_ro(const char *path, const char *value, uint32_t domi
 	return rc;
 }
 
+int xss_write_guest_domain_ro2(const char *path, const char *value, uint32_t domidb, uint32_t domid)
+{
+	int rc;
+	struct xs_permissions perms[3] = {
+		{
+			.domid = 0,
+			.perms = XS_PERM_NONE,
+		},
+		{
+			.domid = domidb,
+			.perms = XS_PERM_BOTH,
+		},
+		{
+			.domid = domid,
+			.perms = XS_PERM_READ,
+		},
+	};
+
+	if (!path || !value) {
+		LOG_ERR("Invalid arguments: path or value is NULL");
+		return -EINVAL;
+	}
+
+	/*
+	 * If the function is invoked for Dom0, there is
+	 * no need to set additionally read permission.
+	 */
+	if (domid == 0) {
+		rc = xss_do_write(path, value, 0, perms, 1);
+	} else {
+		rc = xss_do_write(path, value, 0, perms, 3);
+	}
+	if (rc) {
+		LOG_ERR("Failed to write to xenstore (rc=%d)", rc);
+	} else {
+		notify_watchers(path, 0);
+		//notify_watchers(path, domidb);
+		//notify_watchers(path, domid);
+	}
+
+	return rc;
+}
+
 int xss_read(const char *path, char *value, size_t len)
 {
 	int rc = -ENOENT;
