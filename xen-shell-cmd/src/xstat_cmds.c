@@ -131,7 +131,14 @@ static int xstat_shell_stat(const struct shell *shell, size_t argc, char **argv)
 		shell_print(shell, "SSID            : %d", domain.ssid);
 		shell_print(shell, "---------------------------------");
 	}
-
+	char buf[100];
+	ret = xstat_readx(buf, sizeof(buf));
+	if (ret < 0) {
+		shell_error(shell, "Cold not get xenstore dump");
+	} else {
+		shell_print(shell, "Dumping xenstore ");
+		shell_print(shell, "xenstore {%s}", buf);
+	}
 	return ret;
 }
 

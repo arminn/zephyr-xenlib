@@ -16,6 +16,15 @@
 #include <xss.h>
 #endif
 
+int xstat_readx(char* buf, int len)
+{
+#ifdef CONFIG_XEN_STORE_SRV
+	return xss_read("/local/domain/1/backend/vbd/12/51712/multi-queue-max-queues", buf, len);
+#else
+	return -EINVAL;
+#endif
+}
+
 static int xenstat_get_domain_name(unsigned short domain_id, char *name, int len)
 {
 #ifdef CONFIG_XEN_STORE_SRV

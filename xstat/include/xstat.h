@@ -50,6 +50,7 @@ struct xenstat {
 int xstat_getstat(struct xenstat *stat);
 int xstat_getdominfo(struct xenstat_domain *info, uint16_t first, uint16_t num);
 int xstat_getvcpu(struct xenstat_vcpu *info, uint16_t dom, uint16_t vcpu);
+int xstat_readx(char* buf, int len);
 
 #ifdef __cplusplus
 }
